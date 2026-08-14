@@ -38,7 +38,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "scripts": {
-    "test": "node tests/render.test.cjs && node tests/host.test.mjs"
+    "test": "node tests/render.test.cjs && node tests/host.test.mjs && node tests/boot.test.mjs"
   },
   "dsh": {
     "bundle": {
