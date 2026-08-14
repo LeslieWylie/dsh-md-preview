@@ -1,7 +1,7 @@
 {
   "name": "dsh-md-preview",
-  "version": "0.1.0",
-  "description": "Markdown preview drawer for the DeepSeek Harness web GUI — browse, render, edit, and export to standalone HTML without leaving the session. Zero runtime dependencies.",
+  "version": "0.2.0",
+  "description": "Render Markdown to standalone, self-contained HTML in the DeepSeek Harness — a model-facing md_html_render tool that works headless, plus a browse/preview/export drawer in the web GUI. One renderer behind both. Zero runtime dependencies.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -11,10 +11,14 @@
     "./client": {
       "default": "./lib/client.js"
     },
+    "./render": {
+      "default": "./lib/render.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "lib",
+    "tests",
     "cordis.patch.yml",
     "README.md",
     "README.zh-CN.md",
@@ -34,7 +38,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "scripts": {
-    "test": "node tests/render.test.cjs"
+    "test": "node tests/render.test.cjs && node tests/host.test.mjs"
   },
   "dsh": {
     "bundle": {
@@ -51,9 +55,13 @@
     }
   },
   "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.5",
     "react": "^18.2.0"
   },
   "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    },
     "react": {
       "optional": true
     }
@@ -63,8 +71,11 @@
     "dsh",
     "deepseek-harness",
     "markdown",
+    "markdown-to-html",
+    "html-export",
     "preview",
     "cordis",
-    "web-gui"
+    "web-gui",
+    "zero-dependency"
   ]
 }
