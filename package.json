@@ -1,0 +1,25 @@
+{
+  "name": "dsh-md-preview",
+  "version": "2.0.0",
+  "description": "DSH Markdown 侧边预览插件：会话头部 MD 按钮 → 右侧抽屉实时预览，内置目录导航，支持编辑/导出 HTML。",
+  "license": "MIT",
+  "type": "module",
+  "private": false,
+  "files": [
+    "host.js",
+    "client.js",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "vitest run tests"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "markdown",
+    "preview",
+    "md"
+  ]
+}
