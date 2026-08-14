@@ -21,7 +21,7 @@
 // ~/.dsh/profiles/<profile>/package.json
 {
   "dependencies": {
-    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.0"
+    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.1"
   },
   "dsh": {
     "profile": {
@@ -38,7 +38,7 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 dsh --profile <profile>
 ```
 
-去掉 `#v0.2.0` 即可跟随默认分支，不锁版本。
+去掉 `#v0.2.1` 即可跟随默认分支，不锁版本。
 
 <details>
 <summary>不改 profile 直接试用</summary>
@@ -120,10 +120,17 @@ md_html_render(markdown, title?, save_path?) -> { html, savedPath?, error? }
 npm test
 ```
 
-两套真实执行的测试，不对被测对象打桩：
+三套真实执行的测试，不对被测对象打桩：
 
 - **`tests/render.test.cjs`** 从浏览器 bundle 中把客户端渲染器抽出来实际运行。
-- **`tests/host.test.mjs`** 用同一套用例集跑宿主端渲染器，**断言两者输出完全一致**（正是这种漂移，导致此前这个账号下出现了两个互相竞争的 Markdown 插件，后来才合并），再用桩 context 驱动 `apply()`，检查工具形态、RPC 各端点，以及沙箱拒写时的兜底路径。
+- **`tests/host.test.mjs`** 用同一套用例集跑宿主端渲染器，**断言两者输出完全一致**（正是这种漂移，导致此前出现了两个互相竞争的 Markdown 插件，后来才合并），再用桩 context 驱动 `apply()`，检查工具形态、RPC 各端点，以及沙箱拒写时的兜底路径。
+- **`tests/boot.test.mjs`** 启动一个真实的 harness `Context`，加载 harness 自己的文件服务，按 profile 的方式装载本包，然后向**真实的**工具注册表索取 `md_html_render` 并对真实磁盘执行一次。
+
+最后这套的存在理由是：DSH 插件完全可能顺利 import、跑过全部单元测试，却在 `Context` 真正启动时什么都没注册——而且是静默的，不报错。单元测试看不见这件事。它需要 harness 依赖，因此在纯 clone 下会以 exit 0 跳过；要真正跑起来：
+
+```sh
+cd ~/.dsh/profiles/<profile>/node_modules/dsh-md-preview && node tests/boot.test.mjs
+```
 
 XSS 相关断言检查的是一条结构性不变式——任何生成的标签都不会出现未闭合的属性或 `on*=` 事件处理器——并且测试里还包含"检查器本身遇到真正危险的标记时会变红"的元断言，避免一条安全断言悄悄退化成永远通过的摆设。
 

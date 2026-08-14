@@ -21,7 +21,7 @@ Not on npm yet — install straight from GitHub. Add it to your profile's `packa
 // ~/.dsh/profiles/<profile>/package.json
 {
   "dependencies": {
-    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.0"
+    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.1"
   },
   "dsh": {
     "profile": {
@@ -38,7 +38,7 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 dsh --profile <profile>
 ```
 
-Drop the `#v0.2.0` to track the default branch instead of pinning.
+Drop the `#v0.2.1` to track the default branch instead of pinning.
 
 <details>
 <summary>Try it without editing your profile</summary>
@@ -120,10 +120,17 @@ Requires Node `^22.19.0 || >=24.0.0`.
 npm test
 ```
 
-Two executing suites, no mocks of the thing under test:
+Three executing suites, no mocks of the thing under test:
 
 - **`tests/render.test.cjs`** extracts the client renderer from the browser bundle and runs it.
-- **`tests/host.test.mjs`** runs the host renderer on the same corpus, **asserts the two agree exactly** (a drift between them is what produced two competing Markdown plugins in this account before they were merged), then drives `apply()` against a stub context to check the tool shape, the RPC endpoints, and the sandbox-refusal path.
+- **`tests/host.test.mjs`** runs the host renderer on the same corpus, **asserts the two agree exactly** (a drift between them is what produced two competing Markdown plugins before they were merged), then drives `apply()` against a stub context to check the tool shape, the RPC endpoints, and the sandbox-refusal path.
+- **`tests/boot.test.mjs`** boots a real harness `Context` with the harness's own filesystem service, loads this package the way a profile does, then asks the **real** tool registry for `md_html_render` and executes it against the real disk.
+
+That last one exists because a DSH plugin can import cleanly, pass every unit test, and still register nothing when a `Context` actually boots it — silently, with no error. Unit tests cannot see that. It needs the harness packages, so it skips with exit 0 from a bare clone; to actually exercise it:
+
+```sh
+cd ~/.dsh/profiles/<profile>/node_modules/dsh-md-preview && node tests/boot.test.mjs
+```
 
 The XSS checks assert a structural invariant — no emitted tag ever carries an unterminated attribute or an `on*=` handler — and the suite includes checks that the checker itself goes red on genuinely unsafe markup, so a security assertion cannot silently rot into one that always passes.
 
