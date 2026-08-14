@@ -1,48 +1,86 @@
-# dsh-md-preview
+# 📄 dsh-md-preview
 
-**DeepSeek Harness Web GUI 的 Markdown 侧边抽屉预览插件。**
+**English** | [简体中文](./README.zh-CN.md)
 
-点击会话头部 **MD** 按钮打开右侧抽屉：浏览当前工作目录，点选 `.md` 文件即得
-GitHub 风格即时预览；可切换编辑模式实时改源码，或将渲染结果导出为独立 HTML。
+> **Read, edit, and export Markdown without leaving your session.**
 
-## 功能
+A preview drawer for the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) web GUI. Press **MD** in the session header, browse the working directory, click a `.md` file — it renders in place. No new tab, no second editor, no context switch.
 
-- 会话头部 **MD** 按钮开合右侧抽屉
-- **内置目录导航**：打开即显示当前工作目录；点目录进入、`⬆` 返回上级——无需系统目录选择器
-- 点 / 双击 `.md` 文件即渲染
-- **预览 / 编辑** 切换，编辑时实时重渲染
-- GitHub 风格渲染：标题、粗/斜/删除线、行内代码、围栏代码块、引用、有序/无序列表、
-  **任务列表**、**表格**、链接、图片、水平线
-- **导出**：将当前文档渲染为独立样式化 HTML 写入当前目录
-- 状态栏：行数 / 当前文件 / 提示与错误
-- 主题自适应：跟随 DSH `--dsw-alias-*` CSS 变量（明暗双主题）
+---
 
-## 文件
+## Install
 
-| 文件 | 作用 |
+Nothing here is on npm yet, so install straight from GitHub. Add it to your profile's `package.json`:
+
+```jsonc
+// ~/.dsh/profiles/<profile>/package.json
+{
+  "dependencies": {
+    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": ["dsh-md-preview"]
+    }
+  }
+}
+```
+
+Then reinstall and restart the profile:
+
+```sh
+cd ~/.dsh/profiles/<profile> && pnpm install
+dsh --profile <profile>
+```
+
+Pin a tag instead of tracking the default branch with `github:LeslieWylie/dsh-md-preview#v0.1.0`.
+
+<details>
+<summary>Try it without editing your profile</summary>
+
+```sh
+dsh --profile web --patch <(printf -- "- insert:\n    - id: md-preview\n      name: dsh-md-preview\n")
+```
+
+The package still has to be resolvable from the profile's `node_modules`, so run the `pnpm install` above first.
+</details>
+
+---
+
+## What it does
+
+| | |
 |---|---|
-| `host.js` | Host 半：`md/ls`、`md/up`、`md/readFile`、`md/export` 包私有 RPC，走 `fs` 服务 |
-| `client.js` | Client 半：手写轻量 Markdown 解析器 + 抽屉 UI + 主题感知 CSS |
+| **Browse in place** | The drawer opens on your working directory. Click a folder to descend, **↑** to go back. No system file dialog. |
+| **Render on click** | Headings, bold/italic/strikethrough, inline code, fenced code blocks, blockquotes, ordered/unordered lists, task lists, tables, links, images, rules. |
+| **Edit** | Toggle to a plain textarea to scratch notes or fix a line, then toggle back. |
+| **Export** | Writes a **standalone** styled HTML page next to the source — self-contained, dark-mode aware, opens anywhere. |
+| **Theme-aware** | Reads the harness theme variables, so it matches light and dark without configuration. |
 
-## 安装 / 部署
+## Why another Markdown plugin
 
-本插件以**动态 Cordis 插件快照**形式发布（Host + Client 双半），通过 DSH 插件工作流部署：
-`cordis_define`（`code.host` 填 `host.js` 内容、`code.client` 填 `client.js` 内容）后再
-`cordis_run`（Client 半首次运行需在 UI 批准）。动态插件为进程内存活，进程重启后请从本仓库
-文件重新部署。
+Three things this one does not do:
 
-若需要静态、可 npm 分发的 bundle 形态（仅 Host），参考配套 `dsh-md-html-render` 工具的风格：
-`package.json` 声明 `dsh.bundle.patch` + `cordis.patch.yml`，经
-`dsh plugin --profile <name> add <pkg>` 安装。
+- **No runtime dependencies.** The client half loads as a plain script with no bundler, so `marked` and `markdown-it` are not available to it. The renderer is ~150 lines of hand-written JavaScript. The dependency tree you audit is this one file.
+- **No second path to your disk.** Every read and write goes through the harness `fs` service, so the plugin inherits whatever sandbox policy the session already runs under. It does not open its own filesystem access. `readFile` refuses anything that is not `.md`, `.markdown`, `.mdx`, or `.txt`.
+- **No raw HTML execution.** Every scrap of document text is HTML-escaped before any inline syntax runs, and link targets that are not `http(s):`, `#`, `/`, or `mailto:` collapse to `#`. A document containing `<script>` or a `javascript:` link renders as literal characters.
 
-## 设计说明
+## How it works
 
-- 分屏实时预览布局参考 StackEdit / HackMD
-- 排版与表格边框采 GitHub 风格
-- 响应式表格与代码展示参考 Codex CLI 的渲染管线
-- Client 沙箱无 `import`/bundler，故解析器为**手写纯 JS**：
-  所有文本先 HTML 转义再处理行内语法，预览不执行原始脚本
+Two halves, talking over one private RPC channel:
 
-## 许可
+```
+Web client half                      Host half
+ slots.inject(header, overlay)  ──▶   ctx.connection.rpc.handle("/dsh-md-preview")
+ renders Markdown in-browser          ls · up · readFile · export ──▶ ctx.fs
+```
+
+The host half never renders; the client half never touches disk.
+
+## Compatibility
+
+Needs a harness with the web GUI (`ctx.slots`, `ctx.connection`) and a host `ctx.fs` service. If `fs` is missing the plugin logs a warning and stays inert rather than half-loading.
+
+## License
 
 MIT

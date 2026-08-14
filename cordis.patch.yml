@@ -1,0 +1,4 @@
+# One bundle row mounts the host RPC channel and publishes the web client half.
+- insert:
+    - id: md-preview
+      name: 'dsh-md-preview'

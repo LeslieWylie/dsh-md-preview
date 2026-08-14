@@ -1,25 +1,70 @@
 {
   "name": "dsh-md-preview",
-  "version": "2.0.0",
-  "description": "DSH Markdown 侧边预览插件：会话头部 MD 按钮 → 右侧抽屉实时预览，内置目录导航，支持编辑/导出 HTML。",
-  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Markdown preview drawer for the DeepSeek Harness web GUI — browse, render, edit, and export to standalone HTML without leaving the session. Zero runtime dependencies.",
   "type": "module",
-  "private": false,
+  "main": "./lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
-    "host.js",
-    "client.js",
+    "lib",
+    "cordis.patch.yml",
     "README.md",
-    "README.en.md",
+    "README.zh-CN.md",
     "LICENSE"
   ],
+  "license": "MIT",
+  "author": "LeslieWylie",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeslieWylie/dsh-md-preview.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LeslieWylie/dsh-md-preview/issues"
+  },
+  "homepage": "https://github.com/LeslieWylie/dsh-md-preview#readme",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
   "scripts": {
-    "test": "vitest run tests"
+    "test": "node tests/render.test.cjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "keywords": [
-    "dsh",
     "dsh-plugin",
+    "dsh",
+    "deepseek-harness",
     "markdown",
     "preview",
-    "md"
+    "cordis",
+    "web-gui"
   ]
 }
