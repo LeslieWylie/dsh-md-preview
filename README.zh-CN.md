@@ -11,6 +11,8 @@
 
 两者共用同一个渲染器，所以模型生成的页面和你从抽屉导出的页面**逐字节一致**——这一点由测试对整个用例集断言。
 
+![MD 抽屉在会话上层展开，就地渲染一份 README](https://raw.githubusercontent.com/LeslieWylie/dsh-md-preview/main/docs/drawer.png)
+
 ---
 
 ## 安装
@@ -21,7 +23,7 @@
 // ~/.dsh/profiles/<profile>/package.json
 {
   "dependencies": {
-    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.1"
+    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.2"
   },
   "dsh": {
     "profile": {
@@ -38,7 +40,7 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 dsh --profile <profile>
 ```
 
-去掉 `#v0.2.1` 即可跟随默认分支，不锁版本。
+去掉 `#v0.2.2` 即可跟随默认分支，不锁版本。
 
 <details>
 <summary>不改 profile 直接试用</summary>
@@ -69,6 +71,8 @@ md_html_render(markdown, title?, save_path?) -> { html, savedPath?, error? }
 > 把这份迁移方案渲染到 `~/Desktop/plan.html`
 
 产物是**自包含**的：样式内嵌，不加载任何外部样式表、字体、脚本或图片。从磁盘打开、从 U 盘打开、在完全断网的机器上打开，效果都一样，并且自动跟随阅读者的深色模式。它不会向外发起任何请求，因为根本没有可发起的目标。
+
+![导出的页面直接从磁盘打开——单文件，不联网](https://raw.githubusercontent.com/LeslieWylie/dsh-md-preview/main/docs/export.png)
 
 如果 `save_path` 被沙箱拒绝，工具仍会连同错误信息一起返回 HTML 正文，不会因为一个权限问题就把成果丢掉。
 
@@ -120,19 +124,24 @@ md_html_render(markdown, title?, save_path?) -> { html, savedPath?, error? }
 npm test
 ```
 
-三套真实执行的测试，不对被测对象打桩：
+四套真实执行的测试，不对被测对象打桩：
 
 - **`tests/render.test.cjs`** 从浏览器 bundle 中把客户端渲染器抽出来实际运行。
 - **`tests/host.test.mjs`** 用同一套用例集跑宿主端渲染器，**断言两者输出完全一致**（正是这种漂移，导致此前出现了两个互相竞争的 Markdown 插件，后来才合并），再用桩 context 驱动 `apply()`，检查工具形态、RPC 各端点，以及沙箱拒写时的兜底路径。
+- **`tests/client.test.mjs`** 覆盖抽屉的路径渲染，包括下文提到的 bidi 处理。
 - **`tests/boot.test.mjs`** 启动一个真实的 harness `Context`，加载 harness 自己的文件服务，按 profile 的方式装载本包，然后向**真实的**工具注册表索取 `md_html_render` 并对真实磁盘执行一次。
 
-最后这套的存在理由是：DSH 插件完全可能顺利 import、跑过全部单元测试，却在 `Context` 真正启动时什么都没注册——而且是静默的，不报错。单元测试看不见这件事。它需要 harness 依赖，因此在纯 clone 下会以 exit 0 跳过；要真正跑起来：
+最后这套的存在理由是：DSH 插件完全可能顺利 import、跑过全部单元测试，却在 `Context` 真正启动时什么都没注册——而且是静默的，不报错。单元测试看不见这件事。
 
-```sh
-cd ~/.dsh/profiles/<profile>/node_modules/dsh-md-preview && node tests/boot.test.mjs
-```
+它需要 harness 依赖，所以缺依赖时是"跳过"而不是"失败"。这恰恰让跳过这条路径变得危险：集成那一半根本没跑的时候，绿勾什么也证明不了。因此 harness 依赖被放在普通的 **`devDependencies`** 里，而不是可选 peer——npm 不会自动安装可选 peer，用那种方式声明，正好会让这套测试在 CI 里被永久跳过。从全新 clone 执行 `npm install && npm test` 就会真实跑到。**如果日志里写的是 `SKIPPED`，这次运行就应当视为未经验证。**
 
 XSS 相关断言检查的是一条结构性不变式——任何生成的标签都不会出现未闭合的属性或 `on*=` 事件处理器——并且测试里还包含"检查器本身遇到真正危险的标记时会变红"的元断言，避免一条安全断言悄悄退化成永远通过的摆设。
+
+## 附注
+
+**路径栏开头的 `~/`。** 面包屑用了 `direction: rtl`，这样当路径长过栏宽时，`text-overflow: ellipsis` 会从**开头**截断，保留最深的那一级目录——也就是你真正在看的那部分。副作用是：开头那串双向中性字符（`~/` 正是如此）会被重排到末尾，`~/projects/app` 显示成了 `projects/app/~`。解法是在开头加一个 U+200E（从左至右标记），它把这串字符锚定为 LTR，同时不影响从头截断的行为。`unicode-bidi: plaintext` 同样能修好顺序，但会把省略号翻回尾部，丢掉当初用 `rtl` 想要的那个特性；而把标记加在**末尾**则完全没有效果。这一行为由 `tests/client.test.mjs` 固定。
+
+**截图是生成的，不是摆拍的。** `node docs/screenshot.mjs --shoot` 会用真实渲染器重建两张图，其中抽屉的 CSS 是从 `lib/client.js` 里切出来的而非重新誊写，因此不会和插件实际画出来的样子发生漂移。
 
 ## 许可
 

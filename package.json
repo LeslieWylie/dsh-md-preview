@@ -1,6 +1,6 @@
 {
   "name": "dsh-md-preview",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Render Markdown to standalone, self-contained HTML in the DeepSeek Harness — a model-facing md_html_render tool that works headless, plus a browse/preview/export drawer in the web GUI. One renderer behind both. Zero runtime dependencies.",
   "type": "module",
   "main": "./lib/index.js",
@@ -38,7 +38,13 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "scripts": {
-    "test": "node tests/render.test.cjs && node tests/host.test.mjs && node tests/boot.test.mjs"
+    "test": "node tests/render.test.cjs && node tests/host.test.mjs && node --test tests/client.test.mjs && node tests/boot.test.mjs"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-fs-local": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-system-prompt": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-tools": "0.1.0-rc.6"
   },
   "dsh": {
     "bundle": {

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The harness packages are devDependencies rather than optional peers on
+      # purpose: npm does not auto-install optional peers, so declaring them
+      # that way leaves tests/boot.test.mjs unable to resolve a real cordis
+      # Context and quietly skipping every run — a green tick that proved
+      # nothing. Look for "--- harness boot ---" in this step's log; if it says
+      # SKIPPED, the integration half did not execute.
+      - run: npm install
+      - run: npm test
+
+  installable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Proves a stranger can install this into a profile: pack the tarball
+      # exactly as npm would publish it, then install it on its own into an
+      # empty project alongside the peers a real profile provides.
+      - run: npm pack
+      - name: a stranger can install this into a profile
+        run: |
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y >/dev/null
+          npm pkg set type=module
+          npm install "$GITHUB_WORKSPACE"/dsh-md-preview-*.tgz react@18
+          cat > check.mjs <<'JS'
+          import { renderStandalone } from 'dsh-md-preview/render'
+          const html = renderStandalone('# ok\n\n| a | b |\n|---|---|\n| 1 | 2 |\n', 'title')
+          for (const needle of ['<table>', '<h1', 'title']) {
+            if (!html.includes(needle)) {
+              console.error(`missing ${needle} in:\n${html}`)
+              process.exit(1)
+            }
+          }
+          console.log(`rendered ${html.length} bytes from the packed tarball`)
+          JS
+          node check.mjs
