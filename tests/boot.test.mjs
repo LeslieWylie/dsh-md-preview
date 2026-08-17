@@ -47,6 +47,10 @@ for (const specifier of REQUIRED) {
     console.log(`\n--- harness boot: SKIPPED ---`)
     console.log(`  ${specifier} is not resolvable from here (${error.code ?? 'error'}).`)
     console.log(`  Run this suite from inside an installed profile to exercise it.`)
+    if (process.env.DSH_BOOT_STRICT === '1') {
+      console.log(`  DSH_BOOT_STRICT=1: an unexercised boot check counts as a failure, not a pass.`)
+      process.exit(1)
+    }
     process.exit(0)
   }
 }

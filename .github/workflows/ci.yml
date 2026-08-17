@@ -21,6 +21,11 @@ jobs:
       # SKIPPED, the integration half did not execute.
       - run: npm install
       - run: npm test
+        env:
+          # Belt and braces for the comment above: if the harness packages ever
+          # stop resolving, fail this job instead of printing SKIPPED and a
+          # green tick.
+          DSH_BOOT_STRICT: '1'
 
   installable:
     runs-on: ubuntu-latest
