@@ -44,9 +44,9 @@ jobs:
           mkdir -p /tmp/consumer && cd /tmp/consumer
           npm init -y >/dev/null
           npm pkg set type=module
-          npm install "$GITHUB_WORKSPACE"/dsh-md-preview-*.tgz react@18
+          npm install "$GITHUB_WORKSPACE"/dsh-md-html-render-*.tgz react@18
           cat > check.mjs <<'JS'
-          import { renderStandalone } from 'dsh-md-preview/render'
+          import { renderStandalone } from 'dsh-md-html-render/render'
           const html = renderStandalone('# ok\n\n| a | b |\n|---|---|\n| 1 | 2 |\n', 'title')
           for (const needle of ['<table>', '<h1', 'title']) {
             if (!html.includes(needle)) {

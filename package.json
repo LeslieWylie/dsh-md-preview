@@ -1,6 +1,6 @@
 {
-  "name": "dsh-md-preview",
-  "version": "0.2.2",
+  "name": "dsh-md-html-render",
+  "version": "0.3.0",
   "description": "Render Markdown to standalone, self-contained HTML in the DeepSeek Harness — a model-facing md_html_render tool that works headless, plus a browse/preview/export drawer in the web GUI. One renderer behind both. Zero runtime dependencies.",
   "type": "module",
   "main": "./lib/index.js",

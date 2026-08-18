@@ -1,4 +1,4 @@
-# 📄 dsh-md-preview
+# 📄 dsh-md-html-render
 
 **English** | [简体中文](./README.zh-CN.md)
 
@@ -17,17 +17,25 @@ Both go through the same renderer, so a page the model generates and a page you 
 
 ## Install
 
+> **Renamed in v0.3.0.** This package was `dsh-md-preview` through v0.2.2. The
+> npm name `dsh-md-preview` was registered by an unrelated project from another
+> author on 2026-08-17, so this one publishes as **`dsh-md-html-render`** — the
+> name of the tool it has always shipped. Installing `dsh-md-preview` from npm
+> gets you that other project, not this one. The GitHub repository path is
+> unchanged, so existing git pins keep resolving; bump the pin to `#v0.3.0`,
+> because the dependency key has to match this package's new name.
+
 Not on npm yet — install straight from GitHub. Add it to your profile's `package.json`:
 
 ```jsonc
 // ~/.dsh/profiles/<profile>/package.json
 {
   "dependencies": {
-    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.2"
+    "dsh-md-html-render": "github:LeslieWylie/dsh-md-preview#v0.3.0"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-md-preview"]
+      "bundles": ["dsh-md-html-render"]
     }
   }
 }
@@ -40,13 +48,13 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 dsh --profile <profile>
 ```
 
-Drop the `#v0.2.2` to track the default branch instead of pinning.
+Drop the `#v0.3.0` to track the default branch instead of pinning.
 
 <details>
 <summary>Try it without editing your profile</summary>
 
 ```sh
-dsh --profile web --patch <(printf -- "- insert:\n    - id: md-preview\n      name: dsh-md-preview\n")
+dsh --profile web --patch <(printf -- "- insert:\n    - id: md-preview\n      name: dsh-md-html-render\n")
 ```
 
 The package still has to resolve from the profile's `node_modules`, so run the `pnpm install` above first.

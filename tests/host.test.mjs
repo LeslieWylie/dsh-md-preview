@@ -187,7 +187,7 @@ check(`all ${CORPUS.length} corpus cases render identically in both halves`, dri
 if (drifted > 0) failures++
 
 console.log('\n--- plugin wiring ---')
-check('exports the package name', name === 'dsh-md-preview')
+check('exports the package name', name === 'dsh-md-html-render')
 check('hard-requires only fs', Array.isArray(inject) && inject.length === 1 && inject[0] === 'fs')
 
 const writes = []
@@ -228,12 +228,12 @@ check('asks for tools and connection separately',
   web.injected.some((d) => d.includes('connection')),
   JSON.stringify(web.injected))
 check('mounts the RPC channel when a connection exists',
-  typeof web.handlers['/dsh-md-preview'] === 'function')
+  typeof web.handlers['/dsh-md-html-render'] === 'function')
 
 const headless = makeCtx(['fs', 'tools'])
 apply(headless.ctx)
 check('mounts no RPC channel headlessly',
-  headless.handlers['/dsh-md-preview'] === undefined)
+  headless.handlers['/dsh-md-html-render'] === undefined)
 
 let inertWarned = false
 const inert = { logger: { warn() { inertWarned = true } }, inject() { throw new Error('must not inject') } }
@@ -268,7 +268,7 @@ check('renders a human-readable result line',
   rendered[0].text.includes('Saved to /tmp/out.html'))
 
 console.log('\n--- rpc endpoints ---')
-const rpc = web.handlers['/dsh-md-preview']
+const rpc = web.handlers['/dsh-md-html-render']
 
 const listing = await rpc('ls', { path: '.' })
 check('ls drops non file/directory entries',

@@ -1,4 +1,4 @@
-# 📄 dsh-md-preview
+# 📄 dsh-md-html-render
 
 [English](./README.md) | **简体中文**
 
@@ -17,17 +17,23 @@
 
 ## 安装
 
+> **v0.3.0 起改名。** 本包在 v0.2.2 之前叫 `dsh-md-preview`。npm 上的
+> `dsh-md-preview` 已于 2026-08-17 被另一位作者的无关项目注册，因此本包以
+> **`dsh-md-html-render`** 发布——也就是它一直提供的那个工具的名字。从 npm 安装
+> `dsh-md-preview` 得到的是那个项目，不是这个。GitHub 仓库路径不变，原有的 git
+> pin 仍可解析；但请把 pin 升到 `#v0.3.0`，因为依赖名必须与新包名一致。
+
 尚未发布到 npm，直接从 GitHub 安装。写进你的 profile `package.json`：
 
 ```jsonc
 // ~/.dsh/profiles/<profile>/package.json
 {
   "dependencies": {
-    "dsh-md-preview": "github:LeslieWylie/dsh-md-preview#v0.2.2"
+    "dsh-md-html-render": "github:LeslieWylie/dsh-md-preview#v0.3.0"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-md-preview"]
+      "bundles": ["dsh-md-html-render"]
     }
   }
 }
@@ -40,13 +46,13 @@ cd ~/.dsh/profiles/<profile> && pnpm install
 dsh --profile <profile>
 ```
 
-去掉 `#v0.2.2` 即可跟随默认分支，不锁版本。
+去掉 `#v0.3.0` 即可跟随默认分支，不锁版本。
 
 <details>
 <summary>不改 profile 直接试用</summary>
 
 ```sh
-dsh --profile web --patch <(printf -- "- insert:\n    - id: md-preview\n      name: dsh-md-preview\n")
+dsh --profile web --patch <(printf -- "- insert:\n    - id: md-preview\n      name: dsh-md-html-render\n")
 ```
 
 包本身仍需能从 profile 的 `node_modules` 解析到，所以还是要先执行上面的 `pnpm install`。

@@ -14,7 +14,7 @@
 // resolved the suite SKIPS rather than fails, so `npm test` still works from a
 // clone. To run it for real:
 //
-//   cd ~/.dsh/profiles/<profile>/node_modules/dsh-md-preview && node tests/boot.test.mjs
+//   cd ~/.dsh/profiles/<profile>/node_modules/dsh-md-html-render && node tests/boot.test.mjs
 //
 // Run: node tests/boot.test.mjs
 
@@ -95,7 +95,7 @@ check('the registry accepted the parameter schema',
 
 console.log('\n--- execute against the real filesystem service ---')
 
-const scratch = mkdtempSync(join(tmpdir(), 'dsh-md-preview-boot-'))
+const scratch = mkdtempSync(join(tmpdir(), 'dsh-md-html-render-boot-'))
 const target = join(scratch, 'out.html')
 try {
   const result = await definition.execute(

@@ -1,4 +1,4 @@
-// dsh-md-preview — CLIENT half unit tests.
+// dsh-md-html-render — CLIENT half unit tests.
 //
 // client.js is wrapped in the web module-loader preamble and ends with
 // `return module.exports; } });`, so it cannot simply be imported here. Rather
